@@ -32,6 +32,10 @@ def get_all_users():
 def create_user_db():
     try:
         user=User()
+        data = json.loads(request.data)
+        if "name" not in data or not data["name"].strip():
+            response = {"message": "Name must be specified"}
+            return jsonify(response), 400
         user.name=json.loads(request.data)["name"]
         user.email=json.loads(request.data)["email"]
         user.date_birth=json.loads(request.data)["date_birth"]
@@ -42,5 +46,7 @@ def create_user_db():
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         response = {"message":"User already exists"}
-        return  jsonify(response), 400
+        return jsonify(response),400
+
+
 
