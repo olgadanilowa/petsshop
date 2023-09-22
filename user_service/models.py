@@ -12,7 +12,7 @@ class User(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(256),unique=True)
     email=db.Column(db.String(256),unique=True)
-    date_birth=db.Column(db.DateTime(timezone=True))
+    date_birth=db.Column(db.String(10))
 
     def serialize(self):
         return {
