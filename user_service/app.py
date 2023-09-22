@@ -1,10 +1,10 @@
 import json
 
-from flask import Flask, jsonify, request
-from models import init_app, db, User
-from flask_migrate import Migrate
 import sqlalchemy
+from flask import Flask, jsonify, request
+from flask_migrate import Migrate
 
+from models import init_app, db, User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "opop"
@@ -31,22 +31,19 @@ def get_all_users():
 @app.route("/users/create", methods=['POST'])
 def create_user_db():
     try:
-        user=User()
-        data = json.loads(request.data)
-        if "name" not in data or not data["name"].strip():
-            response = {"message": "Name must be specified"}
-            return jsonify(response), 400
-        user.name=json.loads(request.data)["name"]
-        user.email=json.loads(request.data)["email"]
-        user.date_birth=json.loads(request.data)["date_birth"]
+        user = User()
+        user.name = json.loads(request.data)["name"]
+        user.email = json.loads(request.data)["email"]
+        user.date_birth = json.loads(request.data)["date_birth"]
         db.session.add(user)
         db.session.commit()
-        response = {"message":"User added"}
-        return jsonify(response),201
+        response = {"message": "User added"}
+        return jsonify(response), 201
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
-        response = {"message":"User already exists"}
-        return jsonify(response),400
-
-
-
+        response = {"message": "User already exists"}
+        return jsonify(response), 400
+    except KeyError:
+        db.session.rollback()
+        response = {"message": "Fill all fields"}
+        return jsonify(response), 400
