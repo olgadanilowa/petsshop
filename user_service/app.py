@@ -38,7 +38,8 @@ def create_user_db():
         user.date_birth = json.loads(request.data)["date_birth"]
         db.session.add(user)
         db.session.commit()
-        response = {"message": "User added"}
+
+        response = {"message": "User added", "result": user.serialize()}
         return jsonify(response), 201
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()

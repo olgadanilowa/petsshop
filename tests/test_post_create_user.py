@@ -42,14 +42,16 @@ def test_create_user_empty_body():
 
 
 def test_creating_and_getting_user_info(create_test_users_body):
-    url = 'http://127.0.0.1:5000/users'
+    response = UserService().post_user(data=create_test_users_body)
 
-    response = requests.post(url + '/create', json=create_test_users_body)
     response= response.json()
-    print (response)
-    user_id = response['user']['id' ]
 
-    response = requests.get(url + '/' + str(user_id))
+    print (response)
+
+    user_id = response['result']['id']
+
+    #response = requests.get(url + '/' + str(user_id))
+    response = UserService().get_user_id(user_id)
     user_data = response.json()
     print(user_data)
 
