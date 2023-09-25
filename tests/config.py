@@ -5,6 +5,7 @@ class UserService:
     url = 'http://127.0.0.1:5000'
     create_user = '/users/create'  # переменные-путь к ресурсу который будет добавлен к адресу
 
+
     def __init__(self):  # метод конструктор
         pass
 

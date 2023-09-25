@@ -3,6 +3,7 @@ import json
 import sqlalchemy
 from flask import Flask, jsonify, request
 from flask_migrate import Migrate
+from sqlalchemy import select
 
 from models import init_app, db, User
 
@@ -47,3 +48,15 @@ def create_user_db():
         db.session.rollback()
         response = {"message": "Fill all fields"}
         return jsonify(response), 400
+
+
+@app.route("/users/<user_id>", methods=['GET'])
+def get_information_id(user_id):
+    user_select = db.session.execute(select(User).filter_by(id=user_id))
+    user = next(user_select)[0]
+    response = {
+            "message": "Info successfully acquired",
+            "result": user.serialize()
+        }
+
+    return jsonify(response), 200
