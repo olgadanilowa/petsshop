@@ -37,6 +37,7 @@ def test_create_user_without_name(create_test_users_body):
     assert r.json() == Errors.empty_field
 
 
+
 def test_create_user_empty_body():
     r = UserService().post_user(data={})
 

@@ -91,7 +91,7 @@ def update_user_db(user_id):
         return jsonify(response), 400
     except KeyError:
         db.session.rollback()
-        response = {"message": "Fill all fields"}
+        response = {"message": "Fill the fields"}
         return jsonify(response), 400
     except jsonschema.exceptions.ValidationError:
         db.session.rollback()
