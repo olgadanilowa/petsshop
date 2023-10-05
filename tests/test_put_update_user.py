@@ -1,4 +1,7 @@
+from copy import deepcopy
+
 from tests.config import UserService
+from tests.static import Errors
 
 
 def test_update_user(create_test_users_body, generate_email, generate_name):
@@ -13,12 +16,9 @@ def test_update_user(create_test_users_body, generate_email, generate_name):
 
     r = UserService().update_user(data=create_test_users_body, user_id=user_id)
 
-    assert r.status_code == 400
+    assert r.status_code == 200
 
-    updated_user = UserService().get_user_id(user_id=user_id)
-    assert updated_user.status_code == 200
-    updated_user_body = updated_user.json()
-
+    updated_user_body = r.json()['result']
     assert updated_user_body["name"] == generate_name
     assert updated_user_body["email"] == generate_email
     assert updated_user_body["customer_type"] == "private"
@@ -36,6 +36,7 @@ def test_update_non_existent_user(create_test_users_body, generate_email, genera
     r = UserService().update_user(data=create_test_users_body, user_id=12345)
 
     assert r.status_code == 400
+    assert r.json() == Errors.user_not_found
 
 
 def test_update_user_long_date_birth(create_test_users_body, generate_email, generate_name):
@@ -52,6 +53,7 @@ def test_update_user_long_date_birth(create_test_users_body, generate_email, gen
     r = UserService().update_user(data=create_test_users_body, user_id=user_id)
 
     assert r.status_code == 400
+    assert r.json() == Errors.incorrect_fields
 
 
 def test_update_user_duplicate_email(create_test_users_body, generate_name):
@@ -59,12 +61,13 @@ def test_update_user_duplicate_email(create_test_users_body, generate_name):
 
     assert r.status_code == 201
 
-    user_id_new = r.json()['result']['id']
-
-    create_test_users_body["email"] = "test_user512@gmail.com"
-    create_test_users_body["name"] = generate_name
-    create_test_users_body["customer_type"] = "private"
-
-    r = UserService().update_user(data=create_test_users_body, user_id=user_id_new)
+    create_test_users_body_new = deepcopy(create_test_users_body)
+    create_test_users_body_new["email"] = "test_user512@gmail.com"
+    create_test_users_body_new["name"] = generate_name
+    create_test_users_body_new["customer_type"] = "private"
+    r1 = UserService().post_user(data=create_test_users_body_new)
+    assert r1.status_code == 201
+    user_id_new = r1.json()['result']['id']
+    r2 = UserService().update_user(data=create_test_users_body, user_id=user_id_new)
 
     assert r.status_code == 400

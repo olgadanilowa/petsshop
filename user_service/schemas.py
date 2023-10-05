@@ -3,9 +3,7 @@ class UserSchemas:
         "type": "object",
         "properties": {
             "name": {"type": "string"},
-            "email": {"type": "string",
-                      "minLength": 2,
-                      "maxLength": 10},
+            "email": {"type": "string"},
             "date_birth": {"type": "string",
                            "minLength": 8,
                            "maxLength": 10},

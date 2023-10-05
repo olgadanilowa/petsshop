@@ -99,3 +99,7 @@ def update_user_db(user_id):
         db.session.rollback()
         response = {"message": "Check the fields"}
         return jsonify(response), 400
+    except StopIteration:
+        db.session.rollback()
+        response = {"message": "User not found"}
+        return jsonify(response), 400

@@ -7,7 +7,6 @@ class UserService:
     get_user_endpoint = 'users/'
     update_user_endpoint = 'update/'
 
-
     def __init__(self):  # метод конструктор
         pass
 
@@ -16,12 +15,10 @@ class UserService:
                           json=data)  # функция внутри метода отправляет post добавляя заголовок и данные
         return r  # возвращаем результат из метода
 
-    def get_user_id(self,data):
-        r = requests.get(self.url  + '/' + self.get_user_endpoint+ str(data))
+    def get_user_id(self, user_id):
+        r = requests.get(self.url + '/' + self.get_user_endpoint + str(user_id))
         return r
 
-
-    def update_user(self,data,user_id):
-        r = requests.put(self.url + '/'+ self.get_user_endpoint + self.update_user_endpoint + str(user_id), json=data)
+    def update_user(self, data, user_id):
+        r = requests.put(self.url + '/' + self.get_user_endpoint + self.update_user_endpoint + str(user_id), json=data)
         return r
-
