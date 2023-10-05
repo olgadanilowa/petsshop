@@ -13,11 +13,13 @@ class User(db.Model):
     name=db.Column(db.String(256),unique=True)
     email=db.Column(db.String(256),unique=True)
     date_birth=db.Column(db.String(10))
+    customer_type=db.Column(db.String(256))
 
     def serialize(self):
         return {
             'id':self.id,
             'name':self.name,
             'email':self.email,
-            'date_birth':self.date_birth
+            'date_birth':self.date_birth,
+            'customer_type':self.customer_type
         }

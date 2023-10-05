@@ -5,3 +5,5 @@ class SuccessResponse:
 class Errors:
     user_exists = {'message': 'User already exists'}
     empty_field = {'message': 'Fill all fields'}
+    user_not_found = {'message': 'User not found'}
+    incorrect_fields = {'message': 'Check the fields'}
