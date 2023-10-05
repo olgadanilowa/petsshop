@@ -45,7 +45,7 @@ def create_user_db():
             user.date_birth = json.loads(request.data)["date_birth"]
         db.session.add(user)
         db.session.commit()
-        response = {"message": "User added","result": user.serialize()}
+        response = {"message": "User added", "result": user.serialize()}
         return jsonify(response), 201
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
@@ -59,6 +59,8 @@ def create_user_db():
         db.session.rollback()
         response = {"message": "Check the fields"}
         return jsonify(response), 400
+
+
 @app.route("/users/<user_id>", methods=['GET'])
 def get_information_id(user_id):
     user_select = db.session.execute(select(User).filter_by(id=user_id))
@@ -83,7 +85,7 @@ def update_user_db(user_id):
             user.date_birth = json.loads(request.data)["date_birth"]
         db.session.add(user)
         db.session.commit()
-        response = {"message": "User updated","result": user.serialize()}
+        response = {"message": "User updated", "result": user.serialize()}
         return jsonify(response), 200
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()

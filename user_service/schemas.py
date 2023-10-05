@@ -4,11 +4,11 @@ class UserSchemas:
         "properties": {
             "name": {"type": "string"},
             "email": {"type": "string",
-                      "minLength": 1,
+                      "minLength": 2,
                       "maxLength": 10},
             "date_birth": {"type": "string",
-                           "minLength": 1,
-                           "maxLength": 55},
+                           "minLength": 8,
+                           "maxLength": 10},
             "customer_type": {
                 "type": "string",
                 "enum": ["private", "company"]
