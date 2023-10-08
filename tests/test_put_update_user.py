@@ -1,7 +1,20 @@
+import random
 from copy import deepcopy
 
 from tests.config import UserService
+from tests.conftest import create_test_users_body
 from tests.static import Errors
+
+
+def _generate_email():
+    email = "test_user" + str(random.randint(1, 10000) + 1) + "@" + random.choice(
+        ["mail.ru", "gmail.com", "yandex.ru"])
+    return email
+
+
+def _generate_name():
+    name = "test_user" + str(random.randint(1, 10000) + 1)
+    return name
 
 
 def test_update_user(create_test_users_body, generate_email, generate_name):
@@ -56,7 +69,7 @@ def test_update_user_long_date_birth(create_test_users_body, generate_email, gen
     assert r.json() == Errors.incorrect_fields
 
 
-def test_update_user_duplicate_email(create_test_users_body, generate_name):
+'''def test_update_user_duplicate_email(create_test_users_body, generate_name):
     r = UserService().post_user(data=create_test_users_body)
 
     assert r.status_code == 201
@@ -70,4 +83,25 @@ def test_update_user_duplicate_email(create_test_users_body, generate_name):
     user_id_new = r1.json()['result']['id']
     r2 = UserService().update_user(data=create_test_users_body, user_id=user_id_new)
 
-    assert r.status_code == 400
+    assert r.status_code == 400'''
+
+
+def test_update_user_duplicate_email(create_test_users_body):
+
+
+    r = UserService().post_user(data=create_test_users_body)
+
+    assert r.status_code == 201
+
+    create_test_users_body_new = deepcopy(create_test_users_body)
+    create_test_users_body_new["email"] = _generate_email()
+    create_test_users_body_new["name"] = _generate_name()
+    create_test_users_body_new["customer_type"] = "private"
+    r1 = UserService().post_user(data=create_test_users_body_new)
+
+    assert r1.status_code == 201
+
+    user_id_new = r1.json()['result']['id']
+    r2 = UserService().update_user(data=create_test_users_body, user_id=user_id_new)
+
+    assert r2.status_code == 400
