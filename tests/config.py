@@ -6,6 +6,7 @@ class UserService:
     create_user_endpoint = '/users/create'  # переменные-путь к ресурсу который будет добавлен к адресу
     get_user_endpoint = 'users/'
     update_user_endpoint = 'update/'
+    delete_user_endpoint = 'delete/'
 
     def __init__(self):  # метод конструктор
         pass
@@ -21,4 +22,8 @@ class UserService:
 
     def update_user(self, data, user_id):
         r = requests.put(self.url + '/' + self.get_user_endpoint + self.update_user_endpoint + str(user_id), json=data)
+        return r
+
+    def delete_user(self, user_id):
+        r = requests.delete(self.url + '/' + self.get_user_endpoint + self.delete_user_endpoint + str(user_id))
         return r
