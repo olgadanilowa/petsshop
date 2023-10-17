@@ -1,6 +1,7 @@
+import pytest
+
 from tests.config import UserService
 from tests.static import Errors
-
 
 
 def test_user_delete_success(create_test_users_body):
@@ -32,11 +33,13 @@ def test_delete_not_exist_user(create_test_users_body):
     assert r2.status_code == 404
     assert r2.json() == Errors.user_not_found
 
-def test_user_delete_invalid_id(create_test_users_body):
-    invalid_user_id = "pupkin"
 
-    r = UserService().delete_user(user_id=invalid_user_id)
+@pytest.mark.parametrize("invalid_id",[1,"pupkin","!"])
+def test_user_delete_invalid_id_int(invalid_id):
+
+    r = UserService().delete_user(user_id=invalid_id)
 
     assert r.status_code == 404
 
     assert r.json() == Errors.user_not_found
+
