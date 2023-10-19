@@ -1,9 +1,8 @@
 import random
 from copy import deepcopy
 
-from tests.config import UserService
-from tests.conftest import create_test_users_body
-from tests.static import Errors
+from user_service.tests.config import UserService
+from user_service.tests.static import Errors
 
 
 def _generate_email():
