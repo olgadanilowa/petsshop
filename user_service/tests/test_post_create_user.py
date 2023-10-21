@@ -1,5 +1,5 @@
-from tests.config import UserService
-from tests.static import SuccessResponse, Errors
+from user_service.tests.config import UserService
+from user_service.tests.static import SuccessResponse, Errors
 
 
 def _succesful_check(r, create_test_users_body):

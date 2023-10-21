@@ -1,7 +1,7 @@
 import pytest
 
-from tests.config import UserService
-from tests.static import Errors
+from user_service.tests.config import UserService
+from user_service.tests.static import Errors
 
 
 def test_user_delete_success(create_test_users_body):
