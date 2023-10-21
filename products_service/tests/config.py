@@ -21,14 +21,14 @@ class UserProduct:
                           json=data)
         return r
 
-    def get_product_id(self, user_id):
-        r = requests.get(self.url + '/' + self.get_product_endpoint + str(user_id))
+    def get_product_id(self, product_id):
+        r = requests.get(self.url + '/' + self.get_product_endpoint + str(product_id))
         return r
 
-    def update_product(self, data, user_id):
-        r = requests.put(self.url + '/' + self.get_product_endpoint + self.update_product_endpoint + str(user_id), json=data)
+    def update_product(self, data, product_id):
+        r = requests.put(self.url + '/' + self.get_product_endpoint + self.update_product_endpoint + str(product_id), json=data)
         return r
 
-    def delete_product(self, user_id):
-        r = requests.delete(self.url + '/' + self.get_product_endpoint + self.delete_product_endpoint + str(user_id))
+    def delete_product(self, product_id):
+        r = requests.delete(self.url + '/' + self.get_product_endpoint + self.delete_product_endpoint + str(product_id))
         return r
