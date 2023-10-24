@@ -7,6 +7,6 @@ class GoodsSchemas:
             "quantity": {"type": "string"},
             "description": {"type": "string"}
         },
-        "required": ["name", "email", "price", "quantity", "description"],
+        "required": ["name", "price", "quantity", "description"],
         "additionalProperties": False
     }

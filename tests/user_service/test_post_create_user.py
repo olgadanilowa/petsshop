@@ -1,5 +1,5 @@
-from user_service.tests.config import UserService
-from user_service.tests.static import SuccessResponse, Errors
+from tests.user_service.config import UserService
+from tests.user_service.static import SuccessResponse, Errors
 
 
 def _succesful_check(r, create_test_users_body):
@@ -34,7 +34,7 @@ def test_create_user_without_name(create_test_users_body):
     r = UserService().post_user(data=data)
 
     assert r.status_code == 400
-    assert r.json() == Errors.empty_field
+    assert r.json() == Errors.incorrect_fields
 
 
 
@@ -42,7 +42,7 @@ def test_create_user_empty_body():
     r = UserService().post_user(data={})
 
     assert r.status_code == 400
-    assert r.json() == Errors.empty_field
+    assert r.json() == Errors.incorrect_fields
 
 
 def test_creating_and_getting_user_info(create_test_users_body):
@@ -51,7 +51,7 @@ def test_creating_and_getting_user_info(create_test_users_body):
     response = response.json()
 
     user_id = response['result']['id']
-    response = UserService().get_user_id(data=user_id)
+    response = UserService().get_user_id(user_id=user_id)
 
     assert response.status_code == 200
 
