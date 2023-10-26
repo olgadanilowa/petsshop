@@ -3,9 +3,9 @@ class GoodsSchemas:
         "type": "object",
         "properties": {
             "name": {"type": "string"},
-            "price": {"type": "string"},
-            "quantity": {"type": "string"},
-            "description": {"type": "string"}
+            "price": {"type": "integer"},
+            "quantity": {"type": "integer"},
+            "description": {"type": "string", "maxLength": 200}
         },
         "required": ["name", "price", "quantity", "description"],
         "additionalProperties": False

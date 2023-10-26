@@ -1,4 +1,5 @@
 import random
+import string
 
 import pytest
 
@@ -7,9 +8,9 @@ import pytest
 def create_db_filling():
     db_dict = {}
     name = "product_name" + str(random.randint(1,10000))
-    price = str(random.randint(1,10000))
+    price = int(random.randint(1,10000))
     quantity = str(random.randint(1,10000))
-    description = "blabla"
+    description = "opophophop"
     db_dict["name"]=name
     db_dict["price"]=price
     db_dict["quantity"]=quantity
