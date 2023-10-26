@@ -13,6 +13,7 @@ def _succesful_check_create_products(r, create_db_filling):
 
 def test_create_product(create_db_filling):
     r = UserProduct().create_product(data=create_db_filling)
+
     _succesful_check_create_products(r, create_db_filling)
 
 def test_create_product_without_name(create_db_filling):
@@ -33,7 +34,6 @@ def test_create_product_with_invalid_price(create_db_filling, invalid_price):
     r = UserProduct().create_product(data=data)
 
     assert r.status_code == 400
-
     assert r.json() == Errors.incorrect_fields
 
 

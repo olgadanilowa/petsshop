@@ -25,17 +25,16 @@ def index_page():
 @app.route("/all", methods=['GET'])
 def get_all_goods():
     try:
+        print(request.args.to_dict().keys())
         if "limit" in request.args.to_dict().keys():
             limit = request.args.get("limit")
         else:
             limit = 100
-        print("opop")
         all_goods = Goods.query.limit(int(limit)).all()
         result = [goods.serialize() for goods in all_goods]
         response = {"message": "All goods", "result": result}
         return jsonify(response), 200
     except StopIteration:
-        print("opop")
         response = {"message": "Products are not exist"}
         return jsonify(response), 400
 
