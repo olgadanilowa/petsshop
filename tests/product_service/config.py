@@ -13,8 +13,8 @@ class UserProduct:
     def __init__(self):
         pass
 
-    def get_all_products(self, headers):
-        r = requests.get(self.url + '/' + self.get_all_product_endpoint, headers=headers)
+    def get_all_products(self, params):
+        r = requests.get(self.url + '/' + self.get_all_product_endpoint, params=params)
         return r
 
     def create_product(self, data):

@@ -24,11 +24,18 @@ def index_page():
 
 @app.route("/all", methods=['GET'])
 def get_all_users():
-    all_users = User.query.all()
-    result = [user.serialize() for user in all_users]
-    response = {"message": "users", "result": result}
+    if 'X-Api-Key' in request.headers.keys():
+        if request.headers['X-Api-Key']=='hophop':
+            all_users = User.query.all()
+            result = [user.serialize() for user in all_users]
+            response = {"message": "users", "result": result}
+            return jsonify(response)
+        else:
+            return jsonify({"message": "ERROR: Unauthorized"}), 401
+    else:
+        return jsonify({"message": "ERROR: Unauthorized"}), 401
 
-    return jsonify(response)
+
 
 
 @app.route("/users/create", methods=['POST'])

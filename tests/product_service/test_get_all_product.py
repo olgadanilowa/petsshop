@@ -1,9 +1,10 @@
 from tests.product_service.config import UserProduct
 
 def test_get_all_products_success():
-    headers = {"limit":"10"}
-    r = UserProduct().get_all_products(headers=headers)
+    params = {"limit":"10"}
+    r = UserProduct().get_all_products(params=params)
 
     assert r.status_code == 200
-    print(len(r.json()['result']))
+    assert len(r.json()["result"])<=int(params["limit"])
+
 

@@ -4,12 +4,17 @@ import requests
 class UserService:
     url = 'http://127.0.0.1:5000'
     create_user_endpoint = '/users/create'  # переменные-путь к ресурсу который будет добавлен к адресу
+    all_users_endpoint = '/all'
     get_user_endpoint = 'users/'
     update_user_endpoint = 'update/'
     delete_user_endpoint = 'delete/'
 
     def __init__(self):  # метод конструктор
         pass
+
+    def get_all_users(self, headers):
+        r = requests.get(self.url + self.all_users_endpoint, headers=headers)
+        return r
 
     def post_user(self, data):  # метод http-post на создание юзера, принимает два аргумента заголовок и данные
         r = requests.post(self.url + self.create_user_endpoint,

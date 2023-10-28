@@ -25,7 +25,6 @@ def index_page():
 @app.route("/all", methods=['GET'])
 def get_all_goods():
     try:
-        print(request.args.to_dict().keys())
         if "limit" in request.args.to_dict().keys():
             limit = request.args.get("limit")
         else:

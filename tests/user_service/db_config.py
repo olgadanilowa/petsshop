@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class DbConnect:
     url = '../../user_service/instance/database/user.db'
 
@@ -8,9 +9,9 @@ class DbConnect:
         self.cursor=db.cursor()
 
     def select_users_from_db(self):
-        users = self.cursor.execute('SELECT * from user').fetchall()
-        return users
+        user = self.cursor.execute('SELECT * from user').fetchall()
+        return user
 
-    def select_user_by_id(self, user_id):
-        r = self.cursor.execute(f'SELECT * from user WHERE id={user_id}').fetchall()
-        return r
+    def count_users_db(self):
+        user = self.cursor.execute('SELECT COUNT(*) from user').fetchall()
+        return user[0][0]
