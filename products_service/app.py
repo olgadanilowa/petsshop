@@ -24,18 +24,26 @@ def index_page():
 
 @app.route("/all", methods=['GET'])
 def get_all_goods():
-    all_goods = Goods.query.all()
-    result = [goods.serialize() for goods in all_goods]
-    response = {"message": "All goods", "result": result}
+    try:
+        if "limit" in request.args.to_dict().keys():
+            limit = request.args.get("limit")
+        else:
+            limit = 100
+        all_goods = Goods.query.limit(int(limit)).all()
+        result = [goods.serialize() for goods in all_goods]
+        response = {"message": "All goods", "result": result}
+        return jsonify(response), 200
+    except StopIteration:
+        response = {"message": "Products are not exist"}
+        return jsonify(response), 400
 
-    return jsonify(response)
 
 
 @app.route("/goods/create", methods=['POST'])
 def create_goods_db():
     try:
         goods = Goods()
-        jsonschema.validate(instance=json.loads(request.data), schema=GoodsSchemas.create_goods)
+        jsonschema.validate(instance=json.loads(request.data), schema=GoodsSchemas.create_product)
         goods.name = json.loads(request.data)["name"]
         goods.price = json.loads(request.data)["price"]
         goods.quantity = json.loads(request.data)["quantity"]

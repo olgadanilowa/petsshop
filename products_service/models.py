@@ -11,8 +11,8 @@ def init_app(app):
 class Goods(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(256))
-    price=db.Column(db.Integrer(256))
-    quantity=db.Column(db.String)
+    price=db.Column(db.Integer)
+    quantity=db.Column(db.Integer)
     description=db.Column(db.String)
 
     def serialize(self):

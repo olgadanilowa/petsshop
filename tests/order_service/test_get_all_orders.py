@@ -1,5 +1,5 @@
 
-from order_service.config import UserOrders
+from tests.order_service.config import UserOrders
 
 
 

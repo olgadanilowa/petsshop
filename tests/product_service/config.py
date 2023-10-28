@@ -2,9 +2,9 @@ import requests
 
 
 class UserProduct:
-    url = 'http://127.0.0.1:5002'
+    url = 'http://127.0.0.1:5000'
     create_product_endpoint = '/goods/create'
-    get_all_product_endpoint = 'goods/all'
+    get_all_product_endpoint = 'all'
     get_product_endpoint = 'goods/'
     update_product_endpoint = 'update/'
     delete_product_endpoint = 'delete/'
@@ -13,8 +13,9 @@ class UserProduct:
     def __init__(self):
         pass
 
-    def get_all_products(self, data):
-        r = requests.get(self.url + self.get_all_product_endpoint, json=data)
+    def get_all_products(self, params):
+        r = requests.get(self.url + '/' + self.get_all_product_endpoint, params=params)
+        return r
 
     def create_product(self, data):
         r = requests.post(self.url + self.create_product_endpoint,
