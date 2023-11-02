@@ -34,7 +34,7 @@ def test_delete_not_exist_user(create_test_users_body):
     assert r2.json() == Errors.user_not_found
 
 
-@pytest.mark.parametrize("invalid_id",[1,"pupkin","!"])
+@pytest.mark.parametrize("invalid_id",[1098,"pupkin","!"])
 def test_user_delete_invalid_id_int(invalid_id):
 
     r = UserService().delete_user(user_id=invalid_id)

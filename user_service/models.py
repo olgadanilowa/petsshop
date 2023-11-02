@@ -14,6 +14,7 @@ class User(db.Model):
     email=db.Column(db.String(256),unique=True)
     date_birth=db.Column(db.String(10))
     customer_type=db.Column(db.String(256))
+    password=db.Column(db.String(256))
 
     def serialize(self):
         return {
@@ -21,5 +22,6 @@ class User(db.Model):
             'name':self.name,
             'email':self.email,
             'date_birth':self.date_birth,
-            'customer_type':self.customer_type
+            'customer_type':self.customer_type,
+            'password':self.password
         }

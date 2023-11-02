@@ -52,8 +52,10 @@ def test_creating_and_getting_user_info(create_test_users_body):
     response = response.json()
 
     user_id = response['result']['id']
-    response = UserService().get_user_id(user_id=user_id)
-
+    email = response['result']['email']
+    password = response['result']['password']
+    response = UserService().get_user_id(user_id=user_id, headers={"x-auth-email": email, "x-auth-password":password})
+    print(response.json())
     assert response.status_code == 200
 
     user_data = response.json()

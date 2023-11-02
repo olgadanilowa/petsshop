@@ -21,8 +21,8 @@ class UserService:
                           json=data)  # функция внутри метода отправляет post добавляя заголовок и данные
         return r  # возвращаем результат из метода
 
-    def get_user_id(self, user_id):
-        r = requests.get(self.url + '/' + self.get_user_endpoint + str(user_id))
+    def get_user_id(self, user_id, headers):
+        r = requests.get(self.url + '/' + self.get_user_endpoint + str(user_id), headers=headers)
         return r
 
     def update_user(self, data, user_id):

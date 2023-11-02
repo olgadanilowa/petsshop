@@ -1,4 +1,5 @@
 import json
+from functools import wraps
 
 import jsonschema
 import sqlalchemy
@@ -15,6 +16,35 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./database/user.db'
 init_app(app)
 migrate = Migrate(app, db)
+
+
+def auth_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        password = None
+        email = None
+        if 'x-auth-password' in request.headers or 'x-auth-email' in request.headers:
+            password = request.headers['x-auth-password']
+            email = request.headers['x-auth-email']
+        if not password or email:
+            return jsonify({"message": "A valid password or email is missing!"}), 401
+        try:
+            user_select = db.session.execute(select(User).filter_by(email=email))
+            user = next(user_select)[0]
+            if user.serialize()['password'] == request.headers['x-auth-password']:
+                message = {"message": "Successful authetification"}
+                status_code = 200
+            else:
+                message = {"message": "A valid password or email is missing!"}
+                status_code = 401
+        except KeyError:
+            db.session.rollback()
+            response = {"message": "Fill the fields"}
+            return jsonify(response), 400
+
+        return jsonify(message), status_code
+
+    return decorator
 
 
 @app.route("/")
@@ -46,6 +76,7 @@ def create_user_db():
         user.name = json.loads(request.data)["name"]
         user.email = json.loads(request.data)["email"]
         user.customer_type = json.loads(request.data)["customer_type"]
+        user.password = json.loads(request.data)["password"]
         if "date_birth" not in json.loads(request.data).keys():
             user.date_birth = ""
         else:
@@ -69,6 +100,7 @@ def create_user_db():
 
 
 @app.route("/users/<user_id>", methods=['GET'])
+@auth_required
 def get_information_id(user_id):
     user_select = db.session.execute(select(User).filter_by(id=user_id))
     user = next(user_select)[0]
