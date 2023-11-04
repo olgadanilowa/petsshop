@@ -1,10 +1,9 @@
 import json
+import jsonschema
 import random
+import sqlalchemy
 import string
 from datetime import datetime
-
-import jsonschema
-import sqlalchemy
 from flask import Flask, jsonify, request
 from flask_migrate import Migrate
 from sqlalchemy import select
@@ -86,7 +85,7 @@ def user_login():
                 db.session.commit()
             else:
                 message = {"message": "A valid password or email is missing!"}
-                status_code = 400
+                status_code = 401
         except KeyError:
             db.session.rollback()
             response = {"message": "Make sure you are registered"}
@@ -95,6 +94,31 @@ def user_login():
         return jsonify(message), status_code
     else:
         return jsonify({"message": "A valid password or email is missing!"}), 401
+
+
+def login_check(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        if 'x-auth-token' in request.headers or 'email' in request.headers:
+            token = request.headers['x-auth-token']
+            email = request.headers['email']
+            try:
+                user_select = db.session.execute(select(User).filter_by(email=email))
+                user = next(user_select)[0]
+                if 'token' in user.serialize().keys():
+                    if user.serialize()['token'] == token:
+                        message = {"message": "Successful authentication"}
+                        return f(jsonify(message), *args, **kwargs)
+                    else:
+                        message = {"message": "A valid token is missing!"}
+                        return f(jsonify(message), *args, **kwargs)
+                else:
+                    message = {"message": "A valid token is missing!"}
+                    return f(jsonify(message), *args, **kwargs)
+        else:
+            message = {"message": "A valid token is missing!"}
+            return f(jsonify(message), *args, **kwargs)
+        return decorator
 
 
 @app.route("/users/<user_id>", methods=['GET'])
