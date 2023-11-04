@@ -1,3 +1,6 @@
+import json
+from time import strftime
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -25,7 +28,17 @@ class User(db.Model):
             'email': self.email,
             'date_birth': self.date_birth,
             'customer_type': self.customer_type,
+            'password': self.password
+        }
+
+    def logged_in(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'date_birth': self.date_birth,
+            'customer_type': self.customer_type,
             'password': self.password,
             'token': self.token,
-            'token_issue_time': self.token_issue_time
+            'token_issue_time': self.token_issue_time.strftime("%H:%M:%S")
         }

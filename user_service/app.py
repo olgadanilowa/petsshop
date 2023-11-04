@@ -100,41 +100,39 @@ def user_login():
 
 def login_check(f):
     @wraps(f)
-    def decorator(*args, **kwargs):
-        if 'x-auth-token' in request.headers or 'email' in request.headers:
-            token = request.headers['x-auth-token']
-            email = request.headers['email']
-            try:
+    def decorator(**kwargs):
+        kwargs.clear()
+        try:
+            if 'x-auth-token' in request.headers or 'email' in request.headers:
+                token = request.headers['x-auth-token']
+                email = request.headers['email']
                 user_select = db.session.execute(select(User).filter_by(email=email))
                 user = next(user_select)[0]
-                if 'token' in user.serialize().keys():
-                    if user.serialize()['token'] == token:
-                        message = {"message": "Successful authentication"}
-                        return f(jsonify(message), *args, **kwargs)
-                    else:
-                        message = {"message": "A valid token is missing!"}
-                        return f(jsonify(message), *args, **kwargs)
+                if 'token' in user.logged_in().keys() and user.logged_in()['token'] == token:
+                    kwargs['user_id'] = user.id
                 else:
-                    message = {"message": "A valid token is missing!"}
-                    return f(jsonify(message), *args, **kwargs)
-            except KeyError:
-                db.session.rollback()
-                response = {"message": "Make sure you are registered"}
-                return jsonify(response), 400
-        else:
-            message = {"message": "A valid token is missing!"}
-            return f(jsonify(message), *args, **kwargs)
+                    kwargs['message'] = {"message": "A valid token is missing"}
+            else:
+                kwargs['message'] = {"message": "1"}
+        except KeyError:
+            db.session.rollback()
+            kwargs['message'] = {"message": "2"}
+        return kwargs
     return decorator
 
 
 @app.route("/users/<user_id>", methods=['GET'])
 @login_check
-def get_information_id(user_id):
-    user_select = db.session.execute(select(User).filter_by(id=user_id))
-    user = next(user_select)[0]
-    response = {"message": "Info successfully acquired", "result": user.serialize()}
+def get_information_id(**kwargs):
+    print(kwargs)
+    if 'user_id' in kwargs.keys():
+        user_select = db.session.execute(select(User).filter_by(id=kwargs['user_id']))
+        user = next(user_select)[0]
+        response = {"message": "Info successfully acquired", "result": user.logged_in()}
 
-    return jsonify(response), 200
+        return jsonify(response), 200
+    else:
+        return jsonify(kwargs), 400
 
 
 @app.route("/users/update/<user_id>", methods=['PUT'])
