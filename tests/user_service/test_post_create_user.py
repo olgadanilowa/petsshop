@@ -4,6 +4,7 @@ from tests.user_service.static import SuccessResponse, Errors
 
 
 def _succesful_check(r, create_test_users_body):
+    print(r.json())
     assert r.status_code == 201
     assert r.json()['message'] == SuccessResponse.created['message']
     assert r.json()['result']['name'] == create_test_users_body['name']
@@ -36,7 +37,6 @@ def test_create_user_without_name(create_test_users_body):
 
     assert r.status_code == 400
     assert r.json() == Errors.incorrect_fields
-
 
 
 def test_create_user_empty_body():

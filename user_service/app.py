@@ -1,5 +1,7 @@
 import json
-from functools import wraps
+import random
+import string
+from datetime import datetime
 
 import jsonschema
 import sqlalchemy
@@ -16,35 +18,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./database/user.db'
 init_app(app)
 migrate = Migrate(app, db)
-
-
-def auth_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        password = None
-        email = None
-        if 'x-auth-password' in request.headers or 'x-auth-email' in request.headers:
-            password = request.headers['x-auth-password']
-            email = request.headers['x-auth-email']
-        if not password or email:
-            return jsonify({"message": "A valid password or email is missing!"}), 401
-        try:
-            user_select = db.session.execute(select(User).filter_by(email=email))
-            user = next(user_select)[0]
-            if user.serialize()['password'] == request.headers['x-auth-password']:
-                message = {"message": "Successful authetification"}
-                status_code = 200
-            else:
-                message = {"message": "A valid password or email is missing!"}
-                status_code = 401
-        except KeyError:
-            db.session.rollback()
-            response = {"message": "Fill the fields"}
-            return jsonify(response), 400
-
-        return jsonify(message), status_code
-
-    return decorator
 
 
 @app.route("/")
@@ -64,8 +37,6 @@ def get_all_users():
             return jsonify({"message": "ERROR: Unauthorized"}), 401
     else:
         return jsonify({"message": "ERROR: Unauthorized"}), 401
-
-
 
 
 @app.route("/users/create", methods=['POST'])
@@ -99,8 +70,34 @@ def create_user_db():
         return jsonify(response), 400
 
 
+@app.route("/login", methods=['POST'])
+def user_login():
+    if 'password' in json.loads(request.data).keys() or 'email' in json.loads(request.data).keys():
+        password = json.loads(request.data)['password']
+        email = json.loads(request.data)['email']
+        try:
+            user_select = db.session.execute(select(User).filter_by(email=email))
+            user = next(user_select)[0]
+            if user.serialize()['password'] == password:
+                message = {"message": "Successful authentication"}
+                status_code = 200
+                user.token = ''.join(random.choice(string.ascii_letters) for i in range(15))
+                user.token_issue_time = datetime.now().time()
+                db.session.commit()
+            else:
+                message = {"message": "A valid password or email is missing!"}
+                status_code = 400
+        except KeyError:
+            db.session.rollback()
+            response = {"message": "Make sure you are registered"}
+            return jsonify(response), 400
+
+        return jsonify(message), status_code
+    else:
+        return jsonify({"message": "A valid password or email is missing!"}), 401
+
+
 @app.route("/users/<user_id>", methods=['GET'])
-@auth_required
 def get_information_id(user_id):
     user_select = db.session.execute(select(User).filter_by(id=user_id))
     user = next(user_select)[0]
