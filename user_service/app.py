@@ -1,4 +1,6 @@
 import json
+from functools import wraps
+
 import jsonschema
 import random
 import sqlalchemy
@@ -115,13 +117,18 @@ def login_check(f):
                 else:
                     message = {"message": "A valid token is missing!"}
                     return f(jsonify(message), *args, **kwargs)
+            except KeyError:
+                db.session.rollback()
+                response = {"message": "Make sure you are registered"}
+                return jsonify(response), 400
         else:
             message = {"message": "A valid token is missing!"}
             return f(jsonify(message), *args, **kwargs)
-        return decorator
+    return decorator
 
 
 @app.route("/users/<user_id>", methods=['GET'])
+@login_check
 def get_information_id(user_id):
     user_select = db.session.execute(select(User).filter_by(id=user_id))
     user = next(user_select)[0]

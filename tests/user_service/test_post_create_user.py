@@ -49,13 +49,20 @@ def test_create_user_empty_body():
 def test_creating_and_getting_user_info(create_test_users_body):
     response = UserService().post_user(data=create_test_users_body)
     assert response.status_code == 201
-    response = response.json()
+    email = response.json()['result']['email']
+    password = response.json()['result']['password']
+    user_id = response.json()['result']['id']
 
-    user_id = response['result']['id']
-    email = response['result']['email']
-    password = response['result']['password']
-    response = UserService().get_user_id(user_id=user_id, headers={"x-auth-email": email, "x-auth-password":password})
-    print(response.json())
+    data = {
+        'email': email,
+        'password': password
+    }
+
+    r = UserService().user_login(data=data)
+
+    token=DbConnect().select_user_by_id(user_id=user_id)[0][6]
+    response = UserService().get_user_id(user_id=user_id, headers={"email": email, "x-auth-token":token})
+
     assert response.status_code == 200
 
     user_data = response.json()
@@ -64,6 +71,7 @@ def test_creating_and_getting_user_info(create_test_users_body):
     assert user_data['result']['name']==user_db_data[0][1]
     assert user_data['result']['email']==user_db_data[0][2]
     assert user_data['result']['customer_type']==user_db_data[0][4]
+
 
 def test_create_user_without_date_birth(create_test_users_body):
     data = create_test_users_body
