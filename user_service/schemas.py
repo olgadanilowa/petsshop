@@ -10,8 +10,9 @@ class UserSchemas:
             "customer_type": {
                 "type": "string",
                 "enum": ["private", "company"]
-            }
+            },
+            "password":{"type":"string"}
         },
-        "required": ["name", "email", "customer_type"],
+        "required": ["name", "email", "customer_type", "password"],
         "additionalProperties": False
     }

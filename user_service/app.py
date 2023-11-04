@@ -1,4 +1,7 @@
 import json
+import random
+import string
+from datetime import datetime
 
 import jsonschema
 import sqlalchemy
@@ -36,8 +39,6 @@ def get_all_users():
         return jsonify({"message": "ERROR: Unauthorized"}), 401
 
 
-
-
 @app.route("/users/create", methods=['POST'])
 def create_user_db():
     try:
@@ -46,6 +47,7 @@ def create_user_db():
         user.name = json.loads(request.data)["name"]
         user.email = json.loads(request.data)["email"]
         user.customer_type = json.loads(request.data)["customer_type"]
+        user.password = json.loads(request.data)["password"]
         if "date_birth" not in json.loads(request.data).keys():
             user.date_birth = ""
         else:
@@ -66,6 +68,33 @@ def create_user_db():
         db.session.rollback()
         response = {"message": "Check the fields"}
         return jsonify(response), 400
+
+
+@app.route("/login", methods=['POST'])
+def user_login():
+    if 'password' in json.loads(request.data).keys() or 'email' in json.loads(request.data).keys():
+        password = json.loads(request.data)['password']
+        email = json.loads(request.data)['email']
+        try:
+            user_select = db.session.execute(select(User).filter_by(email=email))
+            user = next(user_select)[0]
+            if user.serialize()['password'] == password:
+                message = {"message": "Successful authentication"}
+                status_code = 200
+                user.token = ''.join(random.choice(string.ascii_letters) for i in range(15))
+                user.token_issue_time = datetime.now().time()
+                db.session.commit()
+            else:
+                message = {"message": "A valid password or email is missing!"}
+                status_code = 400
+        except KeyError:
+            db.session.rollback()
+            response = {"message": "Make sure you are registered"}
+            return jsonify(response), 400
+
+        return jsonify(message), status_code
+    else:
+        return jsonify({"message": "A valid password or email is missing!"}), 401
 
 
 @app.route("/users/<user_id>", methods=['GET'])

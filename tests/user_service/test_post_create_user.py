@@ -4,6 +4,7 @@ from tests.user_service.static import SuccessResponse, Errors
 
 
 def _succesful_check(r, create_test_users_body):
+    print(r.json())
     assert r.status_code == 201
     assert r.json()['message'] == SuccessResponse.created['message']
     assert r.json()['result']['name'] == create_test_users_body['name']
@@ -38,7 +39,6 @@ def test_create_user_without_name(create_test_users_body):
     assert r.json() == Errors.incorrect_fields
 
 
-
 def test_create_user_empty_body():
     r = UserService().post_user(data={})
 
@@ -52,8 +52,10 @@ def test_creating_and_getting_user_info(create_test_users_body):
     response = response.json()
 
     user_id = response['result']['id']
-    response = UserService().get_user_id(user_id=user_id)
-
+    email = response['result']['email']
+    password = response['result']['password']
+    response = UserService().get_user_id(user_id=user_id, headers={"x-auth-email": email, "x-auth-password":password})
+    print(response.json())
     assert response.status_code == 200
 
     user_data = response.json()
