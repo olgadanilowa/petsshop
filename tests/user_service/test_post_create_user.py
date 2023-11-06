@@ -63,16 +63,21 @@ def test_creating_and_getting_user_info(create_test_users_body):
     assert r.status_code == 200
 
     token = DbConnect().select_user_by_id(user_id=user_id)[0][6]
-    response = UserService().get_user_id(user_id=user_id, headers={})
 
-    assert response.status_code == 400
+    headers = {
+        'email': token,
+        'x-auth-token': token
+    }
 
-    '''user_data = response.json()
+    response = UserService().get_user_id(user_id=user_id, headers=headers)
+    assert response.status_code == 200
+
+    user_data = response.json()
     user_db_data = DbConnect().select_user_by_id(user_id=user_id)
 
     assert user_data['result']['name'] == user_db_data[0][1]
     assert user_data['result']['email'] == user_db_data[0][2]
-    assert user_data['result']['customer_type'] == user_db_data[0][4]'''
+    assert user_data['result']['customer_type'] == user_db_data[0][4]
 
 
 def test_create_user_without_date_birth(create_test_users_body):

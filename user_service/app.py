@@ -6,7 +6,7 @@ import random
 import sqlalchemy
 import string
 from datetime import datetime
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 from flask_migrate import Migrate
 from sqlalchemy import select
 
@@ -23,7 +23,14 @@ migrate = Migrate(app, db)
 
 @app.route("/")
 def index_page():
-    return "hophop"
+    response = {"message": "This page is empty"}
+    return jsonify(response), 200
+
+
+@app.route("/unlogged")
+def unlogged():
+    response = {"message": "You should log in before you make this request"}
+    return jsonify(response), 400
 
 
 @app.route("/all", methods=['GET'])
@@ -101,7 +108,7 @@ def user_login():
 def login_check(f):
     @wraps(f)
     def decorator(**kwargs):
-        kwargs.clear()
+        kwargs.pop('user_id')
         try:
             if 'x-auth-token' in request.headers or 'email' in request.headers:
                 token = request.headers['x-auth-token']
@@ -110,13 +117,13 @@ def login_check(f):
                 user = next(user_select)[0]
                 if 'token' in user.logged_in().keys() and user.logged_in()['token'] == token:
                     kwargs['user_id'] = user.id
+                    kwargs['result'] = user.logged_in()
                 else:
-                    kwargs['message'] = {"message": "A valid token is missing"}
+                    return redirect("/unlogged")
             else:
-                kwargs['message'] = {"message": "1"}
-        except KeyError:
-            db.session.rollback()
-            kwargs['message'] = {"message": "2"}
+                return redirect("/unlogged")
+        except (KeyError, StopIteration):
+            return redirect("/unlogged")
         return kwargs
     return decorator
 
@@ -124,13 +131,15 @@ def login_check(f):
 @app.route("/users/<user_id>", methods=['GET'])
 @login_check
 def get_information_id(**kwargs):
-    print(kwargs)
     if 'user_id' in kwargs.keys():
         user_select = db.session.execute(select(User).filter_by(id=kwargs['user_id']))
         user = next(user_select)[0]
-        response = {"message": "Info successfully acquired", "result": user.logged_in()}
-
-        return jsonify(response), 200
+        if user.logged_in() == kwargs['result']:
+            response = {"message": "Info successfully acquired", "result": kwargs['result']}
+            return jsonify(response), 200
+        else:
+            response = {"message": "Ooops, somwthing went wrong"}
+            return jsonify(response), 400
     else:
         return jsonify(kwargs), 400
 
