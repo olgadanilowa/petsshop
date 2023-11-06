@@ -1,11 +1,12 @@
 import json
-import random
-import string
-from datetime import datetime
+from functools import wraps
 
 import jsonschema
+import random
 import sqlalchemy
-from flask import Flask, jsonify, request
+import string
+from datetime import datetime
+from flask import Flask, jsonify, request, redirect
 from flask_migrate import Migrate
 from sqlalchemy import select
 
@@ -22,7 +23,14 @@ migrate = Migrate(app, db)
 
 @app.route("/")
 def index_page():
-    return "hophop"
+    response = {"message": "This page is empty"}
+    return jsonify(response), 200
+
+
+@app.route("/unlogged")
+def unlogged():
+    response = {"message": "You should log in before you make this request"}
+    return jsonify(response), 400
 
 
 @app.route("/all", methods=['GET'])
@@ -86,7 +94,7 @@ def user_login():
                 db.session.commit()
             else:
                 message = {"message": "A valid password or email is missing!"}
-                status_code = 400
+                status_code = 401
         except KeyError:
             db.session.rollback()
             response = {"message": "Make sure you are registered"}
@@ -97,13 +105,43 @@ def user_login():
         return jsonify({"message": "A valid password or email is missing!"}), 401
 
 
-@app.route("/users/<user_id>", methods=['GET'])
-def get_information_id(user_id):
-    user_select = db.session.execute(select(User).filter_by(id=user_id))
-    user = next(user_select)[0]
-    response = {"message": "Info successfully acquired", "result": user.serialize()}
+def login_check(f):
+    @wraps(f)
+    def decorator(**kwargs):
+        kwargs.pop('user_id')
+        try:
+            if 'x-auth-token' in request.headers or 'email' in request.headers:
+                token = request.headers['x-auth-token']
+                email = request.headers['email']
+                user_select = db.session.execute(select(User).filter_by(email=email))
+                user = next(user_select)[0]
+                if 'token' in user.logged_in().keys() and user.logged_in()['token'] == token:
+                    kwargs['user_id'] = user.id
+                    kwargs['result'] = user.logged_in()
+                else:
+                    return redirect("/unlogged")
+            else:
+                return redirect("/unlogged")
+        except (KeyError, StopIteration):
+            return redirect("/unlogged")
+        return kwargs
+    return decorator
 
-    return jsonify(response), 200
+
+@app.route("/users/<user_id>", methods=['GET'])
+@login_check
+def get_information_id(**kwargs):
+    if 'user_id' in kwargs.keys():
+        user_select = db.session.execute(select(User).filter_by(id=kwargs['user_id']))
+        user = next(user_select)[0]
+        if user.logged_in() == kwargs['result']:
+            response = {"message": "Info successfully acquired", "result": kwargs['result']}
+            return jsonify(response), 200
+        else:
+            response = {"message": "Ooops, somwthing went wrong"}
+            return jsonify(response), 400
+    else:
+        return jsonify(kwargs), 400
 
 
 @app.route("/users/update/<user_id>", methods=['PUT'])
