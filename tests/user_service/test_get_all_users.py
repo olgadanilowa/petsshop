@@ -25,3 +25,4 @@ def test_no_header():
     r = UserService().get_all_users(headers=headers)
 
     assert r.status_code==401
+

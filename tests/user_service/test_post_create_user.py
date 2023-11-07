@@ -1,6 +1,7 @@
 from tests.user_service.config import UserService
 from tests.user_service.db_config import DbConnect
 from tests.user_service.static import SuccessResponse, Errors
+import requests
 
 
 def _succesful_check(r, create_test_users_body):
@@ -73,6 +74,7 @@ def test_creating_and_getting_user_info(create_test_users_body):
     assert response.status_code == 200
 
     user_data = response.json()
+    print(user_data)
     user_db_data = DbConnect().select_user_by_id(user_id=user_id)
 
     assert user_data['result']['name'] == user_db_data[0][1]
@@ -105,3 +107,10 @@ def test_create_user_wrong_customer_type(create_test_users_body):
     r = UserService().post_user(data=data)
 
     assert r.status_code == 400
+
+'''def test_create_and_login_user(create_and_login_user):'''
+
+
+
+
+

@@ -1,6 +1,10 @@
 import random
 
 import pytest
+from tests.user_service.config import UserService
+
+import requests
+
 
 @pytest.fixture
 def generate_password():
@@ -31,4 +35,24 @@ def create_test_users_body(generate_email, generate_name, generate_password):
     return users
 
 
+@pytest.fixture
+def create_and_login_user(create_test_users_body):
+    user_body = create_test_users_body
+    create_user_url = UserService().post_user(user_body)
 
+    r = requests.post(create_user_url, json=user_body)
+
+    assert r.status_code == 200
+
+    login_url = UserService().user_login(data=user_body)
+    login_body = {
+        "email": user_body["email"],
+        "password": user_body["password"]
+    }
+
+    r = requests.post(login_url, json=login_body)
+
+    assert r.status_code == 200
+
+    login_response = r.json()
+    return login_response
