@@ -118,9 +118,9 @@ def test_create_and_login_user(create_and_login_user):
     token = create_and_login_user['token']
 
     headers = {
-    'email': user_info['email'],
-    'x-auth-token': token
-}
+        'email': user_info['email'],
+        'x-auth-token': token
+    }
     response = UserService().get_user_id(user_id=user_info['id'], headers=headers)
 
     assert response.status_code == 200

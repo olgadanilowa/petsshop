@@ -1,9 +1,9 @@
 import random
 
 import pytest
-from tests.user_service.config import UserService
-
 import requests
+
+from tests.user_service.config import UserService
 
 
 @pytest.fixture
