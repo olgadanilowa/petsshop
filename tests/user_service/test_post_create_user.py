@@ -108,9 +108,28 @@ def test_create_user_wrong_customer_type(create_test_users_body):
 
     assert r.status_code == 400
 
-'''def test_create_and_login_user(create_and_login_user):'''
 
+def test_create_and_login_user(create_and_login_user):
+    response = UserService().post_user(data=create_and_login_user())
 
+    assert response.status_code == 201
 
+    user_info = create_and_login_user['user']
+    token = create_and_login_user['token']
 
+    headers = {
+    'email': user_info['email'],
+    'x-auth-token': token
+}
+    response = UserService().get_user_id(user_id=user_info['id'], headers=headers)
 
+    assert response.status_code == 200
+
+    user_data = response.json()
+    user_db_data = DbConnect().select_user_by_id(user_id=user_info['id'])
+
+    print(user_data)
+
+    assert user_data['result']['name'] == user_db_data[0][1]
+    assert user_data['result']['email'] == user_db_data[0][2]
+    assert user_data['result']['customer_type'] == user_db_data[0][4]
