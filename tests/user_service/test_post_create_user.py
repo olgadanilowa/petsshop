@@ -109,29 +109,70 @@ def test_create_user_wrong_customer_type(create_test_users_body):
     assert r.status_code == 400
 
 
-def test_create_and_login_user(create_and_login_user):
-    response = UserService().post_user(data=create_and_login_user())
+def test_get_user_info_succesful(create_and_login_user):
+    headers = {
+        'email': create_and_login_user[0]['email'],
+        'x-auth-token': create_and_login_user[1]
+    }
+    response = UserService().get_user_id(user_id=create_and_login_user[0]['id'], headers=headers)
 
     assert response.status_code == 200
 
-    user_info = create_and_login_user['user']
-    token = create_and_login_user['token']
-
-    headers = {
-        'email': user_info['email'],
-        'x-auth-token': token
-    }
-    response = UserService().get_user_id(user_id=user_info['id'], headers=headers)
-
-    assert response.status_code == 201
-
     user_data = response.json()
-    user_db_data = DbConnect().select_user_by_id(user_id=user_info['id'])
-
-    #print(user_data)
+    user_db_data = DbConnect().select_user_by_id(user_id=create_and_login_user[0]['id'])
 
     assert user_data['result']['name'] == user_db_data[0][1]
     assert user_data['result']['email'] == user_db_data[0][2]
     assert user_data['result']['customer_type'] == user_db_data[0][4]
 
 
+def test_get_user_info_failed_wrong_email(create_and_login_user):
+    headers = {
+        'email': 'email',
+        'x-auth-token': create_and_login_user[1]
+    }
+    response = UserService().get_user_id(user_id=create_and_login_user[0]['id'], headers=headers)
+
+    assert response.status_code == 400
+    assert response.json()==Errors.failed_to_login
+
+def test_get_user_info_wrong_token(create_and_login_user):
+    headers = {
+        'email': create_and_login_user[0]['email'],
+        'x-auth-token': 'oooo'
+    }
+    response = UserService().get_user_id(user_id=create_and_login_user[0]['id'], headers=headers)
+
+    assert response.status_code == 400
+    assert response.json()==Errors.failed_to_login
+
+def test_get_user_info_empty_headers(create_and_login_user):
+    headers = {
+    }
+    response = UserService().get_user_id(user_id=create_and_login_user[0]['id'], headers=headers)
+
+    assert response.status_code == 400
+    assert response.json()==Errors.failed_to_login
+
+def test_get_user_info_extra_header(create_and_login_user):
+    headers = {
+        'email': create_and_login_user[0]['email'],
+        'x-auth-token': create_and_login_user[1],
+        'x-auth': create_and_login_user[1],
+
+    }
+    response = UserService().get_user_id(user_id=create_and_login_user[0]['id'], headers=headers)
+
+    assert response.status_code == 400
+    assert response.json()==Errors.failed_to_login
+
+def test_get_user_info_wrong_email_token(create_and_login_user):
+    headers = {
+        'email': 'email',
+        'x-auth-token': 'token'
+
+    }
+    response = UserService().get_user_id(user_id=create_and_login_user[0]['id'], headers=headers)
+
+    assert response.status_code == 400
+    assert response.json()==Errors.failed_to_login

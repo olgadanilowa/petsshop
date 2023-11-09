@@ -29,10 +29,12 @@ class UserService:
         r = requests.get(self.url + '/' + self.get_user_endpoint + str(user_id), headers=headers)
         return r
 
-    def update_user(self, data, user_id):
-        r = requests.put(self.url + '/' + self.get_user_endpoint + self.update_user_endpoint + str(user_id), json=data)
+    def update_user(self, data, user_id, headers):
+        r = requests.put(self.url + '/' + self.get_user_endpoint + self.update_user_endpoint + str(user_id), json=data,
+                         headers=headers)
         return r
 
-    def delete_user(self, user_id):
-        r = requests.delete(self.url + '/' + self.get_user_endpoint + self.delete_user_endpoint + str(user_id))
+    def delete_user(self, user_id, headers):
+        r = requests.delete(self.url + '/' + self.get_user_endpoint + self.delete_user_endpoint + str(user_id),
+                            headers=headers)
         return r

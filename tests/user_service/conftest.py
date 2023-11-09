@@ -40,37 +40,22 @@ def create_test_users_body(generate_email, generate_name, generate_password):
 @pytest.fixture
 def create_and_login_user(create_test_users_body):
     user_body = create_test_users_body
-    service = UserService()
-    #create_user_url = UserService().post_user(user_body)
 
-    #login_url = UserService().user_login(data=user_body)
+    create_user = UserService().post_user(data=user_body)
 
+    assert create_user.status_code == 201
 
     login_body = {
         "email": user_body["email"],
         "password": user_body["password"]
     }
 
+    login_user = UserService().user_login(data=login_body)
 
-    #r = requests.post(create_user_url, json=user_body)
+    assert login_user.status_code == 200
 
-    r = service.post_user(user_body)
+    login_response = login_user.json()
+    user_info = login_response['result']
+    token = login_response['result']['token']
 
-    assert r.status_code == 201
-
-
-    #r = requests.post(login_url, json=login_body)
-    r = service.user_login(login_body)
-
-    assert r.status_code == 200
-
-    login_response = r.json()
-
-    user_info = login_response['user']
-    token = login_response['token']
-
-    response_new = {
-        'user': user_info,
-        'token': token, }
-
-    return response_new
+    return user_info, token

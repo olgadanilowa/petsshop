@@ -16,17 +16,17 @@ def _generate_name():
     return name
 
 
-def test_update_user(create_test_users_body, generate_email, generate_name):
-    r = UserService().post_user(data=create_test_users_body)
+def test_update_user(create_and_login_user, generate_email, generate_name):
+    headers = {
+        'email': create_and_login_user[0]['email'],
+        'x-auth-token': create_and_login_user[1]
+    }
+    user_body = deepcopy(create_and_login_user[0])
+    user_body["name"] = generate_name
+    user_body["email"] = generate_email
+    user_body["customer_type"] = "private"
 
-    assert r.status_code == 201
-
-    user_id = r.json()['result']['id']
-    create_test_users_body["name"] = generate_name
-    create_test_users_body["email"] = generate_email
-    create_test_users_body["customer_type"] = "private"
-
-    r = UserService().update_user(data=create_test_users_body, user_id=user_id)
+    r = UserService().update_user(data=user_body, user_id=user_body['id'], headers=headers)
 
     assert r.status_code == 200
 
