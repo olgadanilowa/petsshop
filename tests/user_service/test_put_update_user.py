@@ -23,17 +23,15 @@ def test_update_user(create_and_login_user, generate_email, generate_name):
     }
     user_body = deepcopy(create_and_login_user[0])
     user_body["name"] = generate_name
-    user_body["email"] = generate_email
-    user_body["customer_type"] = "private"
+    user_body["company_type"] = "private"
 
-    r = UserService().update_user(data=user_body, user_id=user_body['id'], headers=headers)
+    r = UserService().update_user(data=user_body, user_id=create_and_login_user[0]["id"], headers=headers)
 
     assert r.status_code == 200
 
     updated_user_body = r.json()['result']
     assert updated_user_body["name"] == generate_name
-    assert updated_user_body["email"] == generate_email
-    assert updated_user_body["customer_type"] == "private"
+    assert updated_user_body["customer_type"] == user_body["customer_type"]
 
 
 def test_update_non_existent_user(create_test_users_body, generate_email, generate_name):

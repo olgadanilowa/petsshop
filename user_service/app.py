@@ -110,8 +110,12 @@ def login_check(f):
     def decorator(**kwargs):
         kwargs.pop('user_id')
         try:
-            if len(request.headers)==2:
-                if 'x-auth-token' in request.headers or 'email' in request.headers:
+            if request.method == "GET" and len(request.headers) > 7:
+                return redirect("/unlogged")
+            elif request.method == "PUT" and len(request.headers) > 9:
+                return redirect("/unlogged")
+            else:
+                if 'x-auth-token' in request.headers and 'email' in request.headers:
                     token = request.headers['x-auth-token']
                     email = request.headers['email']
                     user_select = db.session.execute(select(User).filter_by(email=email))
@@ -123,8 +127,6 @@ def login_check(f):
                         return redirect("/unlogged")
                 else:
                     return redirect("/unlogged")
-            else:
-                return redirect("/unlogged")
         except (KeyError, StopIteration):
             return redirect("/unlogged")
         return kwargs
@@ -155,17 +157,17 @@ def update_user_db(**kwargs):
             user_select = db.session.execute(select(User).filter_by(id=kwargs['user_id']))
             user = next(user_select)[0]
             jsonschema.validate(instance=json.loads(request.data), schema=UserSchemas.create_user)
-            user.name = json.loads(request.data)["name"]
-            user.email = json.loads(request.data)["email"]
-            user.customer_type = json.loads(request.data)["customer_type"]
-            if "date_birth" not in json.loads(request.data).keys():
-                user.date_birth = ""
-            else:
-                user.date_birth = json.loads(request.data)["date_birth"]
-            db.session.add(user)
-            db.session.commit()
-            response = {"message": "User updated", "result": user.serialize()}
-            return jsonify(response), 200
+            if user.logged_in() == kwargs['result']:
+                user.name = json.loads(request.data)["name"]
+                user.email = json.loads(request.data)["email"]
+                user.customer_type = json.loads(request.data)["customer_type"]
+                if "date_birth" not in json.loads(request.data).keys():
+                    user.date_birth = ""
+                else:
+                    user.date_birth = json.loads(request.data)["date_birth"]
+                db.session.commit()
+                response = {"message": "User updated", "result": user.logged_in()}
+                return jsonify(response), 200
         except sqlalchemy.exc.IntegrityError:
             db.session.rollback()
             response = {"message": "User with such data already exists"}

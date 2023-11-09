@@ -13,7 +13,7 @@ def init_app(app):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(256), unique=True)
+    name = db.Column(db.String(256))
     email = db.Column(db.String(256), unique=True)
     date_birth = db.Column(db.String(10))
     customer_type = db.Column(db.String(256))
