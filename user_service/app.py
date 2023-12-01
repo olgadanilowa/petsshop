@@ -164,7 +164,10 @@ def update_user_db(**kwargs):
                 if "date_birth" not in json.loads(request.data).keys():
                     user.date_birth = ""
                 else:
-                    user.date_birth = json.loads(request.data)["date_birth"]
+                    if json.loads(request.data)["date_birth"] <= 10:
+                        user.date_birth = json.loads(request.data)["date_birth"]
+                    else:
+                        user.date_birth = ""
                 db.session.commit()
                 response = {"message": "User updated", "result": user.logged_in()}
                 return jsonify(response), 200

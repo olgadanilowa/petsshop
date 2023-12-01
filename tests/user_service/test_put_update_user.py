@@ -26,6 +26,7 @@ def test_update_user(create_and_login_user, generate_email, generate_name):
     user_body["company_type"] = "private"
 
     r = UserService().update_user(data=user_body, user_id=create_and_login_user[0]["id"], headers=headers)
+    print(r.json())
 
     assert r.status_code == 200
 
@@ -50,25 +51,23 @@ def test_update_non_existence_user(create_and_login_user, generate_email, genera
     assert r.json() == Errors.user_not_found
 
 
-def test_update_user_long_date_birth(create_and_login_user, create_test_users_body, generate_email, generate_name):
+def test_update_user_long_date_birth(create_and_login_user):
     headers = {
         'email': create_and_login_user[0]['email'],
         'x-auth-token': create_and_login_user[1]
     }
 
     user_id = create_and_login_user[0]['id']
-
-    new_user_data = create_test_users_body
-    new_user_data["name"] = generate_name
-    new_user_data["email"] = generate_email
-    new_user_data["customer_type"] = "private"
-    new_user_data["date_birth"] = "1998.5.23456"
-
+    print(create_and_login_user[0]["date_birth"])
+    new_user_data = create_and_login_user[0]["date_birth"]
+    new_user_data = "1998.5.23456"
+    print(new_user_data)
     r = UserService().update_user(data=new_user_data, user_id=user_id, headers=headers)
 
-    assert r.status_code == 400
-    print(r.json())
-    assert r.json() == Errors.incorrect_fields
+    assert r.status_code == 200
+    assert r.json()["result"]["date_birth"] != new_user_data
+    assert r.json()["result"]["date_birth"] == ""
+
 
 
 def test_update_user_duplicate_email(create_and_login_user, generate_email):

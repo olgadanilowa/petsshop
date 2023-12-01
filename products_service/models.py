@@ -23,3 +23,21 @@ class Goods(db.Model):
             'quantity':self.quantity,
             'description':self.description
         }
+class Basket(db.Model):
+    id=db.Column(db.Integer,primary_key=True)
+    basket_id=db.Column(db.String(256))
+    user_id=db.Column(db.String(256))
+    product_id=db.Column(db.String(256))
+    quantity=db.Column(db.Integer)
+    sum=db.Column(db.Integer)
+
+    def serialize(self):
+        return {
+            'id':self.id,
+            'basket_id':self.basket_id,
+            'user_id':self.user_id,
+            'product_id':self.product_id,
+            'quantity':self.quantity,
+            'sum':self.sum
+
+        }

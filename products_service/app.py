@@ -1,4 +1,5 @@
 import json
+import random
 
 import jsonschema
 import sqlalchemy
@@ -6,7 +7,7 @@ from flask import Flask, jsonify, request
 from flask_migrate import Migrate
 from sqlalchemy import select
 
-from models import init_app, db, Goods
+from models import init_app, db, Goods, Basket
 from schemas import GoodsSchemas
 
 app = Flask(__name__)
@@ -120,4 +121,21 @@ def delete_product(product_id):
         db.session.rollback()
         response = {"message": "Product not found"}
         return jsonify(response), 404
+
+@app.route("/goods/basket", methods=['POST'])
+def add_product_in_basket():
+    try:
+        basket_id = "basket" + str(random.randint(1, 10000) + 1) + str(random.randint(99999, 10000000))
+        basket = Basket()
+        basket.basket_id=basket_id
+        basket.user_id = json.loads(request.data)["user_id"]
+        basket.product_id = json.loads(request.data)["product_id"]
+        basket.quantity = json.loads(request.data)["quantity"]
+        product_price = db.session.execute(select(Goods).filter_by(id=basket.product_id))
+        price = next(product_price)[2]
+        basket.sum = price * json.loads(request.data)["quantity"]
+        db.session.add(basket)
+        db.session.commit()
+    except:
+        db.session.rollback()
 

@@ -58,4 +58,4 @@ def create_and_login_user(create_test_users_body):
     user_info = login_response['result']
     token = login_response['result']['token']
 
-    return user_info, token
+    return user_info, token, create_test_users_body
