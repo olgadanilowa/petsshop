@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 from sqlalchemy import select
 
 from models import init_app, db, Goods, Basket
-from schemas import GoodsSchemas
+from schemas import GoodsSchemas, BasketSchemas
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "opop"
@@ -127,15 +127,19 @@ def add_product_in_basket():
     try:
         basket_id = "basket" + str(random.randint(1, 10000) + 1) + str(random.randint(99999, 10000000))
         basket = Basket()
+        jsonschema.validate(instance=json.loads(request.data), schema=BasketSchemas.create_basket)
         basket.basket_id=basket_id
         basket.user_id = json.loads(request.data)["user_id"]
-        basket.product_id = json.loads(request.data)["product_id"]
-        basket.quantity = json.loads(request.data)["quantity"]
-        product_price = db.session.execute(select(Goods).filter_by(id=basket.product_id))
-        price = next(product_price)[2]
-        basket.sum = price * json.loads(request.data)["quantity"]
+        product = db.session.execute(select(Goods).filter_by(id=basket.product_id))
+        product_item = next(product)
+        if product_item[3] == 0 and json.loads(request.data)["quantity"] > product_item[3]:
+            basket.product_id = json.loads(request.data)["product_id"]
+            basket.quantity = json.loads(request.data)["quantity"]
+            basket.sum = product_item[2] * json.loads(request.data)["quantity"]
         db.session.add(basket)
         db.session.commit()
+        response = {"message": "Basket succesful created", "result": basket.serialize()}
+        return jsonify(response), 201
     except:
         db.session.rollback()
 

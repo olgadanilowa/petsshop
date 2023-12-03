@@ -13,17 +13,14 @@ class GoodsSchemas:
 
 
 class BasketSchemas:
-    basket = {
-         "type": "object",
+    create_basket = {
+        "type": "object",
         "properties": {
-            "id": {"type": "string"},
-            "basket_id": {"type": "string"},
             "user_id": {"type": "string"},
             "product_id": {"type": "string"},
-            "quantity": {"type": "integer"},
-            "sum": {"type": "integer"}
+            "quantity": {"type": "integer"}
 
         },
-        "required": ["user_id", "product_id", "quantity", "sum"],
+        "required": ["user_id","product_id" "quantity"],
         "additionalProperties": False
     }
